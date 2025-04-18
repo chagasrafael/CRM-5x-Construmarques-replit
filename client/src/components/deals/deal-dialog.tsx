@@ -64,10 +64,20 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
   });
 
   const createDealMutation = useMutation({
-    mutationFn: createDeal,
+    // Modificamos a mutationFn para converter valorNegociado para string
+    mutationFn: async (values: DealFormValues) => {
+      const formattedValues = {
+        ...values,
+        valorNegociado: String(values.valorNegociado)
+      };
+      return createDeal(formattedValues as any);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      // Também invalidamos queries da API n8n
+      queryClient.invalidateQueries({ queryKey: ['negociacoes'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
       toast({
         title: "Negociação criada",
         description: "A negociação foi criada com sucesso.",
@@ -96,8 +106,12 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
       return updateDeal(deal.id, formattedValues);
     },
     onSuccess: () => {
+      // Invalidar queries da API local
       queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      // Também invalidamos queries da API n8n
+      queryClient.invalidateQueries({ queryKey: ['negociacoes'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
       toast({
         title: "Negociação atualizada",
         description: "A negociação foi atualizada com sucesso.",
@@ -123,21 +137,31 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
     setIsSubmitting(true);
     
     if (isEditing) {
+      // Prepara os dados para a API n8n
+      const n8nData = {
+        ...values,
+        valorNegociado: String(values.valorNegociado)
+      };
+      
       // Tenta atualizar na API do n8n
       updateNegociacaoMutation.mutate({
         id: deal.id,
-        data: {
-          ...values,
-          // Converte o valorNegociado para string para a API n8n
-          valorNegociado: String(values.valorNegociado)
-        }
+        data: n8nData
       });
       
-      // Como fallback, atualiza localmente - aqui o tipo já está correto como number
-      updateDealMutation.mutate(values);
+      // Como fallback, atualiza localmente
+      updateDealMutation.mutate({
+        ...values,
+        // Forçando o tipo para satisfazer a API
+        valorNegociado: String(values.valorNegociado) as any
+      });
     } else {
       // Para criar novos registros, usamos apenas a API local por enquanto
-      createDealMutation.mutate(values);
+      createDealMutation.mutate({
+        ...values,
+        // Forçando o tipo para satisfazer a API
+        valorNegociado: String(values.valorNegociado) as any
+      });
     }
   };
 
