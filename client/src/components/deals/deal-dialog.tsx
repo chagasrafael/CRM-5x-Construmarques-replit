@@ -7,8 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createDeal, updateDeal } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { updateNegociacao } from "@/lib/n8nApiClient";
+import { updateNegociacao, Negociacao } from "@/lib/n8nApiClient";
 import { useUpdateNegociacao } from "@/hooks/use-update-negociacao";
+import { getNomeCliente, getValorNegociado } from "@/lib/utils";
 
 import {
   Dialog,
@@ -55,8 +56,8 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
   const form = useForm<DealFormValues>({
     resolver: zodResolver(dealFormSchema),
     defaultValues: {
-      nomeCliente: deal?.nomeCliente || "",
-      valorNegociado: deal?.valorNegociado || 0,
+      nomeCliente: getNomeCliente(deal || {}) || "",
+      valorNegociado: getValorNegociado(deal || {}) || 0,
       estagio: deal?.estagio || DealStage.NOVO_LEAD,
       status: deal?.status || DealStatus.EM_NEGOCIACAO,
       vendedor: deal?.vendedor || "",
@@ -137,10 +138,14 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
     setIsSubmitting(true);
     
     if (isEditing) {
-      // Prepara os dados para a API n8n
+      // Prepara os dados para a API n8n, usando os nomes de campos esperados
       const n8nData = {
         ...values,
-        valorNegociado: String(values.valorNegociado)
+        // Mantém compatibilidade com ambos os formatos de nomeclatura de campos
+        nomeCliente: values.nomeCliente,
+        Nome_cliente: values.nomeCliente,
+        valorNegociado: String(values.valorNegociado),
+        valor_negociado: String(values.valorNegociado)
       };
       
       // Tenta atualizar na API do n8n

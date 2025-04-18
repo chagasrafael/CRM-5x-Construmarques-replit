@@ -4,7 +4,7 @@ import { useState } from "react";
 import KanbanColumn from "@/components/deals/kanban-column";
 import { DealStage, type Deal } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getValorNegociado } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
 import { updateDeal } from "@/lib/api";
 import { fetchNegociacoes, updateNegociacao, Negociacao } from "@/lib/n8nApiClient";
@@ -51,7 +51,7 @@ export default function Kanban() {
     });
   };
 
-  const handleOpenDeal = (deal: Deal) => {
+  const handleOpenDeal = (deal: Deal | Negociacao) => {
     setSelectedDeal(deal);
     setOpenDealDialog(true);
   };
@@ -94,7 +94,7 @@ export default function Kanban() {
     (acc, stage) => {
       const stageDeals = dealsList.filter((deal) => deal.estagio === stage);
       const count = stageDeals.length;
-      const value = stageDeals.reduce((sum: number, deal) => sum + Number(deal.valorNegociado), 0);
+      const value = stageDeals.reduce((sum: number, deal) => sum + getValorNegociado(deal), 0);
       acc[stage] = { count, value };
       return acc;
     },
@@ -104,7 +104,7 @@ export default function Kanban() {
   return (
     <div className="flex space-x-4 overflow-x-auto pb-6 scrollbar-thin">
       {stages.map((stage) => {
-        const stageDeals = dealsList.filter(deal => deal.estagio === stage) as Deal[];
+        const stageDeals = dealsList.filter(deal => deal.estagio === stage);
         const stats = columnStats[stage] || { count: 0, value: 0 };
         
         return (

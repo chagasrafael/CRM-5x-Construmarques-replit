@@ -11,9 +11,6 @@ interface DealCardProps {
 }
 
 export default function DealCard({ deal, onClick }: DealCardProps) {
-  // Adicionar console.log para depuração - será removido após identificar o problema
-  console.log("Dados do card:", deal);
-  
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "DEAL",
     item: { id: deal.id },
