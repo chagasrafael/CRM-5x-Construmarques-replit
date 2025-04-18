@@ -25,12 +25,16 @@ import DealDialog from "@/components/deals/deal-dialog";
 import { Deal, DealStatus } from "@shared/schema";
 import { fetchNegociacoes, Negociacao } from "@/lib/n8nApiClient";
 
-export default function List() {
+interface ListProps {
+  initialStatusFilter?: string;
+}
+
+export default function List({ initialStatusFilter = DealStatus.EM_NEGOCIACAO }: ListProps = {}) {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>(DealStatus.EM_NEGOCIACAO);
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
   const [openFilterMenu, setOpenFilterMenu] = useState(false);
   
   // Utilizando a API n8n para buscar negociações
