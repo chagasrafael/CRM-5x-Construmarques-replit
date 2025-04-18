@@ -30,7 +30,7 @@ export default function List() {
   const [currentPage, setCurrentPage] = useState(1);
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [statusFilter, setStatusFilter] = useState(DealStatus.EM_NEGOCIACAO);
+  const [statusFilter, setStatusFilter] = useState<string>(DealStatus.EM_NEGOCIACAO);
   const [openFilterMenu, setOpenFilterMenu] = useState(false);
   
   // Utilizando a API n8n para buscar negociações
@@ -60,17 +60,24 @@ export default function List() {
   // Filter deals based on search and status filter
   const filteredDeals = deals && Array.isArray(deals)
     ? deals.filter((deal) => {
-        // Filtra pelo status selecionado
-        if (statusFilter && deal.status !== statusFilter) {
+        // Filtra pelo status selecionado (só filtra se algum status específico for escolhido)
+        if (statusFilter && statusFilter !== "" && deal.status && deal.status !== statusFilter) {
           return false;
         }
         
-        // Filtra pela busca de texto
-        return !search || 
-          getNomeCliente(deal).toLowerCase().includes(search.toLowerCase()) ||
-          deal.vendedor?.toLowerCase().includes(search.toLowerCase()) ||
-          deal.estagio?.toLowerCase().includes(search.toLowerCase()) ||
-          deal.status?.toLowerCase().includes(search.toLowerCase());
+        // Filtra pela busca de texto se houver algum termo
+        if (search && search.trim() !== "") {
+          const searchTerm = search.toLowerCase().trim();
+          const matchesName = getNomeCliente(deal).toLowerCase().includes(searchTerm);
+          const matchesVendedor = deal.vendedor?.toLowerCase().includes(searchTerm);
+          const matchesEstagio = deal.estagio?.toLowerCase().includes(searchTerm);
+          const matchesStatus = deal.status?.toLowerCase().includes(searchTerm);
+          
+          return matchesName || matchesVendedor || matchesEstagio || matchesStatus;
+        }
+        
+        // Se não tem termo de busca, inclui o item
+        return true;
       }) as (Deal | Negociacao)[]
     : [];
     
