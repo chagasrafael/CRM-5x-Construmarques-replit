@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import KanbanColumn from "@/components/deals/kanban-column";
 import { DealStage, DealStatus, type Deal } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency, getValorNegociado, getNomeCliente } from "@/lib/utils";
+import { formatCurrency, getValorNegociado, getNomeCliente, getDataCriacao, getDataModificacao } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
 import { updateDeal } from "@/lib/api";
 import { fetchNegociacoes, updateNegociacao, Negociacao } from "@/lib/n8nApiClient";
@@ -13,11 +13,16 @@ import { useUpdateNegociacao } from "@/hooks/use-update-negociacao";
 type KanbanProps = {
   statusFilter?: string;
   groupBy?: string;
+  dateRange?: { 
+    from: Date | undefined; 
+    to: Date | undefined 
+  };
 };
 
 export default function Kanban({ 
   statusFilter = DealStatus.EM_NEGOCIACAO,
-  groupBy = "estagio" 
+  groupBy = "estagio",
+  dateRange = { from: undefined, to: undefined }
 }: KanbanProps) {
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | Negociacao | null>(null);
@@ -164,10 +169,41 @@ export default function Kanban({
   // Dados estão carregados e são um array
   const dealsList = deals as (Deal | Negociacao)[];
   
-  // Filtra com base no filtro de status (mostra todos se o filtro for vazio)
-  const filteredDeals = statusFilter 
-    ? dealsList.filter(deal => deal.status === statusFilter)
-    : dealsList;
+  // Aplica múltiplos filtros aos dados
+  const filteredDeals = dealsList.filter(deal => {
+    // Filtro de status
+    if (statusFilter && deal.status !== statusFilter) {
+      return false;
+    }
+    
+    // Filtro de data - verifica a data de criação
+    if (dateRange.from || dateRange.to) {
+      const dataCriacao = getDataCriacao(deal);
+      
+      // Pula este negócio se não tem data de criação
+      if (!dataCriacao) {
+        return false;
+      }
+      
+      // Verifica se está dentro do período de início
+      if (dateRange.from && dataCriacao < dateRange.from) {
+        return false;
+      }
+      
+      // Verifica se está dentro do período de fim
+      if (dateRange.to) {
+        // Adiciona 1 dia ao date.to para incluir o dia final completo
+        const finalDay = new Date(dateRange.to);
+        finalDay.setDate(finalDay.getDate() + 1);
+        
+        if (dataCriacao > finalDay) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  });
 
   // Calculate stats for each category based on groupby
   const columnStats = groupingCategories.reduce<Record<string, { count: number, value: number }>>(

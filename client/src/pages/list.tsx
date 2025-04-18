@@ -20,16 +20,20 @@ import {
   MoreHorizontal,
   Search
 } from "lucide-react";
-import { formatCurrency, getNomeCliente, getValorNegociado } from "@/lib/utils";
+import { formatCurrency, getNomeCliente, getValorNegociado, getDataCriacao, getDataModificacao } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
 import { Deal, DealStatus } from "@shared/schema";
 import { fetchNegociacoes, Negociacao } from "@/lib/n8nApiClient";
 
 interface ListProps {
   initialStatusFilter?: string;
+  dateRange?: { from: Date | undefined; to: Date | undefined };
 }
 
-export default function List({ initialStatusFilter = DealStatus.EM_NEGOCIACAO }: ListProps = {}) {
+export default function List({ 
+  initialStatusFilter = DealStatus.EM_NEGOCIACAO,
+  dateRange = { from: undefined, to: undefined }
+}: ListProps = {}) {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [openDealDialog, setOpenDealDialog] = useState(false);
@@ -61,12 +65,38 @@ export default function List({ initialStatusFilter = DealStatus.EM_NEGOCIACAO }:
     setSelectedDeal(null);
   };
 
-  // Filter deals based on search and status filter
+  // Filter deals based on search, status, and date range
   const filteredDeals = deals && Array.isArray(deals)
     ? deals.filter((deal) => {
         // Filtra pelo status selecionado (só filtra se algum status específico for escolhido)
         if (statusFilter && statusFilter !== "" && deal.status && deal.status !== statusFilter) {
           return false;
+        }
+        
+        // Filtro de data - verifica a data de criação
+        if (dateRange.from || dateRange.to) {
+          const dataCriacao = getDataCriacao(deal);
+          
+          // Pula este negócio se não tem data de criação
+          if (!dataCriacao) {
+            return false;
+          }
+          
+          // Verifica se está dentro do período de início
+          if (dateRange.from && dataCriacao < dateRange.from) {
+            return false;
+          }
+          
+          // Verifica se está dentro do período de fim
+          if (dateRange.to) {
+            // Adiciona 1 dia ao date.to para incluir o dia final completo
+            const finalDay = new Date(dateRange.to);
+            finalDay.setDate(finalDay.getDate() + 1);
+            
+            if (dataCriacao > finalDay) {
+              return false;
+            }
+          }
         }
         
         // Filtra pela busca de texto se houver algum termo
@@ -90,16 +120,23 @@ export default function List({ initialStatusFilter = DealStatus.EM_NEGOCIACAO }:
     if (!filteredDeals.length) return;
     
     // Cabeçalhos do CSV
-    const headers = ["Cliente", "Valor", "Estágio", "Status", "Vendedor"];
+    const headers = ["Cliente", "Valor", "Estágio", "Status", "Vendedor", "Data de Criação", "Última Atualização"];
     
     // Dados formatados para CSV
-    const csvData = filteredDeals.map(deal => [
-      getNomeCliente(deal),
-      formatCurrency(getValorNegociado(deal)).replace("R$", "").trim(),
-      deal.estagio,
-      deal.status,
-      deal.vendedor
-    ]);
+    const csvData = filteredDeals.map(deal => {
+      const dataCriacao = getDataCriacao(deal);
+      const dataModificacao = getDataModificacao(deal);
+      
+      return [
+        getNomeCliente(deal),
+        formatCurrency(getValorNegociado(deal)).replace("R$", "").trim(),
+        deal.estagio,
+        deal.status,
+        deal.vendedor,
+        dataCriacao ? formatDate(dataCriacao) : "",
+        dataModificacao ? formatDate(dataModificacao) : ""
+      ];
+    });
     
     // Criar conteúdo CSV
     const csvContent = [
@@ -152,6 +189,22 @@ export default function List({ initialStatusFilter = DealStatus.EM_NEGOCIACAO }:
     {
       header: "Vendedor",
       accessor: "vendedor",
+    },
+    {
+      header: "Data de Criação",
+      accessor: "createdAt",
+      cell: (_: any, row: Deal | Negociacao) => {
+        const dataCriacao = getDataCriacao(row);
+        return dataCriacao ? formatDate(dataCriacao) : "—";
+      },
+    },
+    {
+      header: "Última Atualização",
+      accessor: "updatedAt",
+      cell: (_: any, row: Deal | Negociacao) => {
+        const dataModificacao = getDataModificacao(row);
+        return dataModificacao ? formatDate(dataModificacao) : "—";
+      },
     },
     {
       header: "Ações",
