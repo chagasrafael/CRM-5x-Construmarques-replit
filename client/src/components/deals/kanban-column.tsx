@@ -2,14 +2,15 @@ import { useDrop } from "react-dnd";
 import DealCard from "./deal-card";
 import EmptyColumn from "./empty-column";
 import { type Deal } from "@shared/schema";
+import { Negociacao } from "@/lib/n8nApiClient";
 
 interface KanbanColumnProps {
   title: string;
-  deals: Deal[];
+  deals: (Deal | Negociacao)[];
   count: number;
   value: string;
   onDragEnd: (dealId: number, newStage: string) => void;
-  onDealClick: (deal: Deal) => void;
+  onDealClick: (deal: Deal | Negociacao) => void;
 }
 
 export default function KanbanColumn({

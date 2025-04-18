@@ -3,10 +3,11 @@ import { DollarSign, User } from "lucide-react";
 import StatusBadge from "@/components/ui/status-badge";
 import { formatCurrency } from "@/lib/utils";
 import { type Deal } from "@shared/schema";
+import { Negociacao } from "@/lib/n8nApiClient";
 
 interface DealCardProps {
-  deal: Deal;
-  onClick: (deal: Deal) => void;
+  deal: Deal | Negociacao;
+  onClick: (deal: Deal | Negociacao) => void;
 }
 
 export default function DealCard({ deal, onClick }: DealCardProps) {

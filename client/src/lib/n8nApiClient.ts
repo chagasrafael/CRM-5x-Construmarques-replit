@@ -66,12 +66,36 @@ export interface Negociacao {
 
 // Buscar todas as negociações
 export async function fetchNegociacoes() {
-  return n8nApiRequest<Negociacao[]>('/negociacoes');
+  try {
+    // Tenta obter dados da API n8n
+    return await n8nApiRequest<Negociacao[]>('/negociacoes');
+  } catch (error) {
+    console.warn("Erro ao buscar dados da API n8n, usando fallback local:", error);
+    
+    // Em caso de falha, faz fallback para API local
+    const response = await fetch('/api/deals');
+    if (!response.ok) {
+      throw new Error(`Erro na API local: ${response.status}`);
+    }
+    return response.json();
+  }
 }
 
 // Buscar dados para o dashboard
 export async function fetchDashboardData() {
-  return n8nApiRequest<DashboardData>('/dashboard');
+  try {
+    // Tenta obter dados do dashboard da API n8n
+    return await n8nApiRequest<DashboardData>('/dashboard');
+  } catch (error) {
+    console.warn("Erro ao buscar dados do dashboard da API n8n, usando fallback local:", error);
+    
+    // Em caso de falha, faz fallback para API local
+    const response = await fetch('/api/dashboard');
+    if (!response.ok) {
+      throw new Error(`Erro na API local: ${response.status}`);
+    }
+    return response.json();
+  }
 }
 
 // Atualizar uma negociação
