@@ -20,7 +20,7 @@ import {
   MoreHorizontal,
   Search
 } from "lucide-react";
-import { formatCurrency, getNomeCliente, getValorNegociado, getDataCriacao, getDataModificacao } from "@/lib/utils";
+import { formatCurrency, getNomeCliente, getValorNegociado, getDataCriacao, getDataModificacao, formatDate } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
 import { Deal, DealStatus } from "@shared/schema";
 import { fetchNegociacoes, Negociacao } from "@/lib/n8nApiClient";

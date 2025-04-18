@@ -139,18 +139,6 @@ export default function ViewTabs({
           Kanban
         </Button>
         <Button
-          variant={activeView === "dashboard" ? "default" : "ghost"}
-          className={
-            activeView === "dashboard"
-              ? "bg-primary text-white"
-              : "text-neutral-700 hover:bg-neutral-100"
-          }
-          onClick={() => onViewChange("dashboard")}
-        >
-          <BarChart2 className="h-4 w-4 mr-1.5" />
-          Dashboard
-        </Button>
-        <Button
           variant={activeView === "list" ? "default" : "ghost"}
           className={
             activeView === "list"
@@ -161,6 +149,18 @@ export default function ViewTabs({
         >
           <List className="h-4 w-4 mr-1.5" />
           Lista
+        </Button>
+        <Button
+          variant={activeView === "dashboard" ? "default" : "ghost"}
+          className={
+            activeView === "dashboard"
+              ? "bg-primary text-white"
+              : "text-neutral-700 hover:bg-neutral-100"
+          }
+          onClick={() => onViewChange("dashboard")}
+        >
+          <BarChart2 className="h-4 w-4 mr-1.5" />
+          Dashboard
         </Button>
       </div>
       
