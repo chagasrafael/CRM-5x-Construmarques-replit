@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createDeal, updateDeal } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { updateNegociacao } from "@/lib/n8nApiClient";
+import { useUpdateNegociacao } from "@/hooks/use-update-negociacao";
 
 import {
   Dialog,
@@ -86,7 +88,12 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
 
   const updateDealMutation = useMutation({
     mutationFn: async (values: DealFormValues) => {
-      return updateDeal(deal.id, values);
+      // Convertendo o valor para string antes de passar para a API local
+      const formattedValues = {
+        ...values,
+        valorNegociado: String(values.valorNegociado)
+      };
+      return updateDeal(deal.id, formattedValues);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
@@ -109,12 +116,27 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
     },
   });
 
+  // Hook personalizado para realizar a atualização com a API n8n
+  const updateNegociacaoMutation = useUpdateNegociacao();
+
   const onSubmit = (values: DealFormValues) => {
     setIsSubmitting(true);
     
     if (isEditing) {
+      // Tenta atualizar na API do n8n
+      updateNegociacaoMutation.mutate({
+        id: deal.id,
+        data: {
+          ...values,
+          // Converte o valorNegociado para string para a API n8n
+          valorNegociado: String(values.valorNegociado)
+        }
+      });
+      
+      // Como fallback, atualiza localmente - aqui o tipo já está correto como number
       updateDealMutation.mutate(values);
     } else {
+      // Para criar novos registros, usamos apenas a API local por enquanto
       createDealMutation.mutate(values);
     }
   };
