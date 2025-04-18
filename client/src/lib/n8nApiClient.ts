@@ -61,6 +61,11 @@ export interface Negociacao {
   estagio: string;
   status: string;
   vendedor: string;
+  // Novos campos para datas
+  createdAt?: string | Date;
+  dataCriacao?: string | Date;
+  updatedAt?: string | Date;
+  dataModificacao?: string | Date;
 }
 
 /**
