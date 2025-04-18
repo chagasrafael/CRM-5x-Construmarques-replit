@@ -23,6 +23,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
 import { Deal } from "@shared/schema";
+import { fetchNegociacoes, Negociacao } from "@/lib/n8nApiClient";
 
 export default function List() {
   const [search, setSearch] = useState("");
@@ -30,8 +31,13 @@ export default function List() {
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   
-  const { data: deals, isLoading } = useQuery<Deal[]>({
-    queryKey: ["/api/deals"],
+  // Utilizando a API n8n para buscar negociações
+  const { data: deals, isLoading } = useQuery<Negociacao[] | Deal[]>({
+    queryKey: ['negociacoes'],
+    queryFn: fetchNegociacoes,
+    // Caso a API externa falhe, recorrer para a API local
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,8 +45,8 @@ export default function List() {
     setCurrentPage(1);
   };
 
-  const handleEditDeal = (deal: Deal) => {
-    setSelectedDeal(deal);
+  const handleEditDeal = (deal: Deal | Negociacao) => {
+    setSelectedDeal(deal as Deal);
     setOpenDealDialog(true);
   };
 
@@ -51,12 +57,12 @@ export default function List() {
 
   // Filter deals based on search
   const filteredDeals = deals && Array.isArray(deals)
-    ? deals.filter((deal: Deal) => 
-        deal.nomeCliente.toLowerCase().includes(search.toLowerCase()) ||
-        deal.vendedor.toLowerCase().includes(search.toLowerCase()) ||
-        deal.estagio.toLowerCase().includes(search.toLowerCase()) ||
-        deal.status.toLowerCase().includes(search.toLowerCase())
-      )
+    ? deals.filter((deal) => 
+        deal.nomeCliente?.toLowerCase().includes(search.toLowerCase()) ||
+        deal.vendedor?.toLowerCase().includes(search.toLowerCase()) ||
+        deal.estagio?.toLowerCase().includes(search.toLowerCase()) ||
+        deal.status?.toLowerCase().includes(search.toLowerCase())
+      ) as (Deal | Negociacao)[]
     : [];
 
   // Pagination

@@ -7,15 +7,26 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
 import { updateDeal } from "@/lib/api";
+import { fetchNegociacoes, updateNegociacao, Negociacao } from "@/lib/n8nApiClient";
+import { useUpdateNegociacao } from "@/hooks/use-update-negociacao";
 
 export default function Kanban() {
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   
-  const { data: deals, isLoading } = useQuery({
-    queryKey: ["/api/deals"],
+  // Utilizando a API n8n para buscar negociações
+  const { data: deals, isLoading } = useQuery<Negociacao[] | Deal[]>({
+    queryKey: ['negociacoes'],
+    queryFn: fetchNegociacoes,
+    // Caso a API externa falhe, recorrer para a API local
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
+  // Utilizando o nosso hook personalizado que conecta com a API do n8n
+  const updateNegociacaoMutation = useUpdateNegociacao();
+  
+  // Mantenha a mutação original como fallback caso a API do n8n falhe
   const updateDealMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Deal> }) => {
       return updateDeal(id, data);
@@ -27,6 +38,13 @@ export default function Kanban() {
   });
 
   const handleDragEnd = (dealId: number, newStage: string) => {
+    // Tenta atualizar na API do n8n
+    updateNegociacaoMutation.mutate({
+      id: dealId,
+      data: { estagio: newStage }
+    });
+    
+    // Como fallback, também atualiza localmente
     updateDealMutation.mutate({
       id: dealId,
       data: { estagio: newStage as any }
@@ -51,7 +69,7 @@ export default function Kanban() {
     DealStage.NEGOCIACAO_FECHADA
   ];
 
-  if (isLoading) {
+  if (isLoading || !deals || !Array.isArray(deals)) {
     return (
       <div className="flex space-x-4 overflow-x-auto pb-6">
         {stages.map((stage) => (
@@ -68,12 +86,15 @@ export default function Kanban() {
     );
   }
 
+  // Dados estão carregados e são um array
+  const dealsList = deals as (Deal | Negociacao)[];
+
   // Calculate stats for each stage
   const columnStats = stages.reduce<Record<string, { count: number, value: number }>>(
     (acc, stage) => {
-      const stageDeals = deals.filter((deal: Deal) => deal.estagio === stage);
+      const stageDeals = dealsList.filter((deal) => deal.estagio === stage);
       const count = stageDeals.length;
-      const value = stageDeals.reduce((sum: number, deal: Deal) => sum + Number(deal.valorNegociado), 0);
+      const value = stageDeals.reduce((sum: number, deal) => sum + Number(deal.valorNegociado), 0);
       acc[stage] = { count, value };
       return acc;
     },
@@ -83,7 +104,7 @@ export default function Kanban() {
   return (
     <div className="flex space-x-4 overflow-x-auto pb-6 scrollbar-thin">
       {stages.map((stage) => {
-        const stageDeals = deals.filter((deal: Deal) => deal.estagio === stage);
+        const stageDeals = dealsList.filter(deal => deal.estagio === stage) as Deal[];
         const stats = columnStats[stage] || { count: 0, value: 0 };
         
         return (
