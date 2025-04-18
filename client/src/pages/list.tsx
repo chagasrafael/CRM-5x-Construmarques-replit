@@ -20,9 +20,9 @@ import {
   MoreHorizontal,
   Search
 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getNomeCliente, getValorNegociado } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
-import { Deal } from "@shared/schema";
+import { Deal, DealStatus } from "@shared/schema";
 import { fetchNegociacoes, Negociacao } from "@/lib/n8nApiClient";
 
 export default function List() {
@@ -30,6 +30,8 @@ export default function List() {
   const [currentPage, setCurrentPage] = useState(1);
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [statusFilter, setStatusFilter] = useState(DealStatus.EM_NEGOCIACAO);
+  const [openFilterMenu, setOpenFilterMenu] = useState(false);
   
   // Utilizando a API n8n para buscar negociações
   const { data: deals, isLoading } = useQuery<Negociacao[] | Deal[]>({
@@ -55,15 +57,56 @@ export default function List() {
     setSelectedDeal(null);
   };
 
-  // Filter deals based on search
+  // Filter deals based on search and status filter
   const filteredDeals = deals && Array.isArray(deals)
-    ? deals.filter((deal) => 
-        deal.nomeCliente?.toLowerCase().includes(search.toLowerCase()) ||
-        deal.vendedor?.toLowerCase().includes(search.toLowerCase()) ||
-        deal.estagio?.toLowerCase().includes(search.toLowerCase()) ||
-        deal.status?.toLowerCase().includes(search.toLowerCase())
-      ) as (Deal | Negociacao)[]
+    ? deals.filter((deal) => {
+        // Filtra pelo status selecionado
+        if (statusFilter && deal.status !== statusFilter) {
+          return false;
+        }
+        
+        // Filtra pela busca de texto
+        return !search || 
+          getNomeCliente(deal).toLowerCase().includes(search.toLowerCase()) ||
+          deal.vendedor?.toLowerCase().includes(search.toLowerCase()) ||
+          deal.estagio?.toLowerCase().includes(search.toLowerCase()) ||
+          deal.status?.toLowerCase().includes(search.toLowerCase());
+      }) as (Deal | Negociacao)[]
     : [];
+    
+  // Função para exportar dados para CSV
+  const exportToCSV = () => {
+    if (!filteredDeals.length) return;
+    
+    // Cabeçalhos do CSV
+    const headers = ["Cliente", "Valor", "Estágio", "Status", "Vendedor"];
+    
+    // Dados formatados para CSV
+    const csvData = filteredDeals.map(deal => [
+      getNomeCliente(deal),
+      formatCurrency(getValorNegociado(deal)).replace("R$", "").trim(),
+      deal.estagio,
+      deal.status,
+      deal.vendedor
+    ]);
+    
+    // Criar conteúdo CSV
+    const csvContent = [
+      headers.join(","),
+      ...csvData.map(row => row.join(","))
+    ].join("\n");
+    
+    // Criar blob e link para download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "negociacoes.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Pagination
   const itemsPerPage = 10;
@@ -77,14 +120,14 @@ export default function List() {
     {
       header: "Cliente",
       accessor: "nomeCliente",
-      cell: (value: string) => (
-        <div className="font-medium text-neutral-800">{value}</div>
+      cell: (_: any, row: Deal | Negociacao) => (
+        <div className="font-medium text-neutral-800">{getNomeCliente(row)}</div>
       ),
     },
     {
       header: "Valor",
       accessor: "valorNegociado",
-      cell: (value: number) => formatCurrency(value),
+      cell: (_: any, row: Deal | Negociacao) => formatCurrency(getValorNegociado(row)),
     },
     {
       header: "Estágio",
@@ -145,11 +188,31 @@ export default function List() {
               />
               <Search className="h-4 w-4 text-neutral-400 absolute left-3 top-2.5" />
             </div>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-1.5" />
-              <span>Filtros</span>
-            </Button>
-            <Button variant="outline" size="sm">
+            <DropdownMenu open={openFilterMenu} onOpenChange={setOpenFilterMenu}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4 mr-1.5" />
+                  <span>Filtros</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setStatusFilter(DealStatus.EM_NEGOCIACAO)}>
+                  {statusFilter === DealStatus.EM_NEGOCIACAO && "✓ "}Em Negociação
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter(DealStatus.GANHO)}>
+                  {statusFilter === DealStatus.GANHO && "✓ "}Ganho
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter(DealStatus.PERDA)}>
+                  {statusFilter === DealStatus.PERDA && "✓ "}Perda
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("")}>
+                  {!statusFilter && "✓ "}Todos
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" size="sm" onClick={exportToCSV}>
               <Download className="h-4 w-4 mr-1.5" />
               <span>Exportar</span>
             </Button>

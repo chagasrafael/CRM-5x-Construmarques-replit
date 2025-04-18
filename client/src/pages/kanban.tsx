@@ -2,7 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 import KanbanColumn from "@/components/deals/kanban-column";
-import { DealStage, type Deal } from "@shared/schema";
+import { DealStage, DealStatus, type Deal } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, getValorNegociado, getNomeCliente } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
@@ -112,11 +112,14 @@ export default function Kanban() {
 
   // Dados estão carregados e são um array
   const dealsList = deals as (Deal | Negociacao)[];
+  
+  // Filtra para mostrar apenas os cartões com status "Em Negociação" por padrão
+  const filteredDeals = dealsList.filter(deal => deal.status === DealStatus.EM_NEGOCIACAO);
 
   // Calculate stats for each stage
   const columnStats = stages.reduce<Record<string, { count: number, value: number }>>(
     (acc, stage) => {
-      const stageDeals = dealsList.filter((deal) => deal.estagio === stage);
+      const stageDeals = filteredDeals.filter((deal) => deal.estagio === stage);
       const count = stageDeals.length;
       const value = stageDeals.reduce((sum: number, deal) => sum + getValorNegociado(deal), 0);
       acc[stage] = { count, value };
@@ -128,7 +131,7 @@ export default function Kanban() {
   return (
     <div className="flex space-x-4 overflow-x-auto pb-6 scrollbar-thin">
       {stages.map((stage) => {
-        const stageDeals = dealsList.filter(deal => deal.estagio === stage);
+        const stageDeals = filteredDeals.filter(deal => deal.estagio === stage);
         const stats = columnStats[stage] || { count: 0, value: 0 };
         
         return (

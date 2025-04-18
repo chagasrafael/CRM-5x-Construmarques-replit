@@ -33,7 +33,6 @@ export default function DealCard({ deal, onClick }: DealCardProps) {
         <h4 className="font-medium text-neutral-800 text-sm">
           {getNomeCliente(deal)}
         </h4>
-        <StatusBadge status={deal.status} />
       </div>
       
       <div className="flex items-center text-sm text-neutral-600 mb-2">
