@@ -6,13 +6,18 @@ import HorizontalBarChart from "@/components/dashboard/horizontal-bar-chart";
 import { DollarSign, Briefcase, CheckCircle, Clock } from "lucide-react";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { DealStage } from "@shared/schema";
+import { fetchDashboardData, DashboardData } from "@/lib/n8nApiClient";
 
 export default function Dashboard() {
-  const { data: dashboardData, isLoading } = useQuery({
-    queryKey: ["/api/dashboard"],
+  // Usando queryKey 'dashboardData' para manter compatibilidade com o hook useUpdateNegociacao
+  const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
+    queryKey: ['dashboardData'],
+    queryFn: fetchDashboardData,
+    // Fallback para API local se a API do n8n falhar
+    retry: 1
   });
 
-  if (isLoading) {
+  if (isLoading || !dashboardData) {
     return (
       <div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -28,6 +33,7 @@ export default function Dashboard() {
     );
   }
 
+  // Se chegou aqui, dashboardData está definido
   const {
     valorTotalEmAndamento,
     numeroNegociosAbertos,
