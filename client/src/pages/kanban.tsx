@@ -4,7 +4,7 @@ import { useState } from "react";
 import KanbanColumn from "@/components/deals/kanban-column";
 import { DealStage, type Deal } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency, getValorNegociado } from "@/lib/utils";
+import { formatCurrency, getValorNegociado, getNomeCliente } from "@/lib/utils";
 import DealDialog from "@/components/deals/deal-dialog";
 import { updateDeal } from "@/lib/api";
 import { fetchNegociacoes, updateNegociacao, Negociacao } from "@/lib/n8nApiClient";
@@ -57,6 +57,12 @@ export default function Kanban() {
         Nome_cliente: getNomeCliente(deal),
         valorNegociado: String(getValorNegociado(deal)),
         valor_negociado: String(getValorNegociado(deal))
+      }
+    }, {
+      onSuccess: () => {
+        // Forçar atualização do dashboard
+        queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       }
     });
     

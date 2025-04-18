@@ -4,7 +4,7 @@ import StatCard from "@/components/dashboard/stat-card";
 import BarChart from "@/components/dashboard/bar-chart";
 import HorizontalBarChart from "@/components/dashboard/horizontal-bar-chart";
 import { DollarSign, Briefcase, CheckCircle, Clock } from "lucide-react";
-import { formatCurrency, formatPercent } from "@/lib/utils";
+import { formatCurrency, formatPercent, getValorNegociado, getNomeCliente } from "@/lib/utils";
 import { DealStage } from "@shared/schema";
 import { fetchDashboardData, DashboardData } from "@/lib/n8nApiClient";
 

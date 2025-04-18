@@ -18,6 +18,9 @@ export function useUpdateNegociacao() {
       // Invalidar as queries para atualizar os dados automáticamente
       queryClient.invalidateQueries({ queryKey: ['negociacoes'] });
       queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
+      // Também invalidamos a API local como fallback
+      queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       
       toast({
         title: "Negociação atualizada",
