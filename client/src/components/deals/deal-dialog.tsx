@@ -148,18 +148,43 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
         valor_negociado: String(values.valorNegociado)
       };
       
+      // Verifica se o negócio tem o campo createdAt (que só existe na API local)
+      // Isso permite identificar a origem do negócio
+      const isFromLocalApi = 'createdAt' in deal;
+      
       // Tenta atualizar na API do n8n
       updateNegociacaoMutation.mutate({
         id: deal.id,
         data: n8nData
+      }, {
+        onSuccess: () => {
+          // Se atualização na API n8n for bem-sucedida, 
+          // não precisamos mostrar mensagens de erro da API local
+          toast({
+            title: "Negociação atualizada",
+            description: "A negociação foi atualizada com sucesso."
+          });
+          setIsSubmitting(false);
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast({
+            title: "Erro ao atualizar negociação",
+            description: error.message,
+            variant: "destructive"
+          });
+          setIsSubmitting(false);
+        }
       });
       
-      // Como fallback, atualiza localmente
-      updateDealMutation.mutate({
-        ...values,
-        // Forçando o tipo para satisfazer a API
-        valorNegociado: String(values.valorNegociado) as any
-      });
+      // Somente atualiza localmente se o negócio for da API local
+      if (isFromLocalApi) {
+        updateDealMutation.mutate({
+          ...values,
+          // Forçando o tipo para satisfazer a API
+          valorNegociado: String(values.valorNegociado) as any
+        });
+      }
     } else {
       // Para criar novos registros, usamos apenas a API local por enquanto
       createDealMutation.mutate({

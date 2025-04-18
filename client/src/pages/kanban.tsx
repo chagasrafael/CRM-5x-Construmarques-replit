@@ -38,17 +38,35 @@ export default function Kanban() {
   });
 
   const handleDragEnd = (dealId: number, newStage: string) => {
+    // Verifica se o negócio existe na API local pelo ID
+    const allDeals = deals as (Deal | Negociacao)[];
+    const deal = allDeals.find(d => d.id === dealId);
+    
+    if (!deal) return;
+    
+    // Verifica se é um negócio da API local (tem createdAt)
+    const isFromLocalApi = 'createdAt' in deal;
+    
     // Tenta atualizar na API do n8n
     updateNegociacaoMutation.mutate({
       id: dealId,
-      data: { estagio: newStage }
+      data: { 
+        estagio: newStage,
+        // Mantém compatibilidade com os diferentes campos
+        nomeCliente: getNomeCliente(deal),
+        Nome_cliente: getNomeCliente(deal),
+        valorNegociado: String(getValorNegociado(deal)),
+        valor_negociado: String(getValorNegociado(deal))
+      }
     });
     
-    // Como fallback, também atualiza localmente
-    updateDealMutation.mutate({
-      id: dealId,
-      data: { estagio: newStage as any }
-    });
+    // Como fallback, também atualiza localmente se o negócio for da API local
+    if (isFromLocalApi) {
+      updateDealMutation.mutate({
+        id: dealId,
+        data: { estagio: newStage as any }
+      });
+    }
   };
 
   const handleOpenDeal = (deal: Deal | Negociacao) => {
