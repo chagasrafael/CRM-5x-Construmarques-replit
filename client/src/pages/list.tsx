@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import React, { useState, Fragment } from "react";
 import DataTable from "@/components/ui/data-table";
 import StatusBadge from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export default function List() {
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   
-  const { data: deals, isLoading } = useQuery({
+  const { data: deals, isLoading } = useQuery<Deal[]>({
     queryKey: ["/api/deals"],
   });
 
@@ -50,7 +50,7 @@ export default function List() {
   };
 
   // Filter deals based on search
-  const filteredDeals = deals 
+  const filteredDeals = deals && Array.isArray(deals)
     ? deals.filter((deal: Deal) => 
         deal.nomeCliente.toLowerCase().includes(search.toLowerCase()) ||
         deal.vendedor.toLowerCase().includes(search.toLowerCase()) ||
@@ -184,7 +184,7 @@ export default function List() {
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
             .map((page, i, arr) => (
-              <React.Fragment key={page}>
+              <Fragment key={page}>
                 {i > 0 && arr[i - 1] + 1 !== page && (
                   <span className="text-neutral-500">...</span>
                 )}
@@ -195,7 +195,7 @@ export default function List() {
                 >
                   {page}
                 </Button>
-              </React.Fragment>
+              </Fragment>
             ))}
           <Button
             variant="outline"

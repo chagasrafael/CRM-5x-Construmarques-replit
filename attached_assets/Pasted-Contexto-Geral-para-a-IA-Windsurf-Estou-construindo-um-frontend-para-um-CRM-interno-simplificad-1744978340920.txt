@@ -1,0 +1,75 @@
+Contexto Geral para a IA (Windsurf):
+"Estou construindo um frontend para um CRM interno simplificado. Ele será incorporado como um iframe ou webview dentro do Chatwoot. Preciso que ele consuma uma API REST criada no n8n e tenha uma aparência visual semelhante ao Chatwoot (cores primárias azul/roxo, design limpo). A stack principal é React com Vite, Tailwind CSS, Shadcn/ui, Tremor (para gráficos/dashboards) e TanStack Query (React Query) para data fetching."
+Prompts Detalhados:
+Etapa 1: Configuração do Projeto e Estilo Base
+1.  Inicialize um novo projeto React usando Vite e selecione a opção com TypeScript.
+2.  Instale e configure o Tailwind CSS seguindo as instruções para Vite.
+3.  Instale e inicialize o Shadcn/ui, configurando-o para usar o esquema de cores padrão por enquanto.
+4.  Instale a biblioteca Tremor (`@tremor/react`).
+5.  Instale TanStack Query (`@tanstack/react-query`) e, opcionalmente, `@tanstack/react-query-devtools`.
+6.  **IMPORTANTE:** Modifique o arquivo `tailwind.config.js`. Adicione as cores primárias do Chatwoot à seção `theme.extend.colors`. Use nomes como `chatwoot-primary` e `chatwoot-secondary`. (Você precisará pegar os códigos hexadecimais exatos do Chatwoot inspecionando a interface ou usando uma ferramenta de conta-gotas. Exemplo abaixo - SUBSTITUA PELOS VALORES REAIS):
+    ```javascript
+    // tailwind.config.js
+    module.exports = {
+      // ... outras configs
+      theme: {
+        extend: {
+          colors: {
+            'chatwoot-primary': '#1f69ef', // <-- SUBSTITUA PELO AZUL/ROXO PRIMÁRIO REAL
+            'chatwoot-secondary': '#5C6AC4', // <-- SUBSTITUA POR OUTRA COR SE NECESSÁRIO
+            // ... outras cores Shadcn/ui se você as sobrescreveu
+          },
+          // ... outras extensões
+        },
+      },
+      plugins: [require('tailwindcss-animate')],
+    }
+    ```
+7.  Configure o componente raiz (`App.tsx` ou `main.tsx`) para usar o `QueryClientProvider` do TanStack Query.
+Use code with caution.
+Prompt
+Etapa 2: Configuração do Cliente API (Opcional, mas recomendado)
+Crie um pequeno módulo utilitário (ex: `src/lib/apiClient.ts`) que configure uma instância base do `fetch` ou instale e configure o `axios`. Defina a URL base para sua API n8n (ex: `https://workflows-webhook.iev.com.br/webhook/crm/apiv1`). Adicione tratamento básico de erros ou interceptors se usar axios.
+Use code with caution.
+Prompt
+Etapa 3: Componente da Lista de Negociações
+1.  Crie um componente React chamado `NegotiationList` (em `src/components/NegotiationList.tsx`).
+2.  Use o hook `useQuery` do TanStack Query para buscar dados do endpoint **GET `/negociacoes`** (use a URL base configurada no apiClient + `/negociacoes`). O `queryKey` pode ser `['negociacoes']`.
+3.  Use o componente `DataTable` do Shadcn/ui para exibir os dados retornados.
+4.  Defina as colunas da tabela para corresponder aos dados recebidos: `id`, `Nome_cliente`, `valor_negociado` (formate como moeda BRL), `estagio`, `status`, `vendedor`.
+5.  Implemente estados de carregamento (ex: exibir um `Skeleton` do Shadcn/ui) e erro (ex: exibir uma mensagem de erro) usando os estados fornecidos pelo `useQuery`.
+6.  Aplique estilos usando classes Tailwind e as cores `chatwoot-primary` onde apropriado (ex: em links ou botões se adicionar no futuro).
+Use code with caution.
+Prompt
+Etapa 4: Componente do Dashboard
+1.  Crie um componente React chamado `DashboardView` (em `src/components/DashboardView.tsx`).
+2.  Use o hook `useQuery` do TanStack Query para buscar dados do endpoint **GET `/dashboard`**. O `queryKey` pode ser `['dashboardData']`.
+3.  Implemente estados de carregamento e erro como no componente anterior.
+4.  Use os componentes da biblioteca Tremor para exibir os KPIs recebidos do endpoint:
+    *   Use `Card` e `Metric` ou `Text` para `valorTotalEmAndamento`.
+    *   Use `Card` e `Metric` ou `Text` para `numeroNegociosAbertos`.
+    *   Use `Card` e `Metric` ou `Text` (formatado como porcentagem) para `taxaDeGanho`.
+    *   Use `BarChart` ou `DonutChart` para visualizar `negociosPorEstagio`. Use as chaves do objeto como categorias e os valores como dados.
+    *   Use `BarChart` para visualizar `valorPorVendedor`. Use as chaves (nomes dos vendedores) como categorias e os valores como dados (formate como moeda).
+5.  Organize os componentes Tremor em um layout responsivo usando `Grid` do Tremor ou classes Flexbox/Grid do Tailwind.
+6.  Aplique as cores `chatwoot-primary` nos gráficos onde fizer sentido.
+Use code with caution.
+Prompt
+Etapa 5: Função de Atualização
+1.  Crie um hook customizado ou uma função utilitária assíncrona chamada `useUpdateNegotiation` (ou similar).
+2.  Esta função deve aceitar parâmetros como `id` e um objeto contendo os campos a serem atualizados (ex: `{ estagio: 'Novo Estágio' }` ou `{ status: 'Ganho', valor_negociado: 15000 }`).
+3.  Dentro da função, use o hook `useMutation` do TanStack Query para fazer uma requisição **POST para o endpoint `/negociacoes`**.
+4.  O corpo da requisição deve ser um JSON contendo o `id` e os campos a serem atualizados (ex: `{"id": 5, "estagio": "Novo Estágio"}`).
+5.  Configure o `useMutation` para invalidar as queries `['negociacoes']` e `['dashboardData']` no `onSuccess`, para que os dados na tela sejam atualizados automaticamente após uma atualização bem-sucedida.
+6.  Retorne o estado da mutação (isLoading, isError, mutate function) do hook `useMutation`.
+Use code with caution.
+Prompt
+Etapa 6: Integração e Layout Principal
+1.  No componente principal (`App.tsx` ou uma página específica), importe e renderize os componentes `NegotiationList` e `DashboardView`.
+2.  Você pode organizá-los usando o componente `Tabs` do Shadcn/ui (uma aba para Dashboard, outra para Lista) ou simplesmente exibi-los um abaixo do outro.
+3.  Garanta que o layout geral use as classes Tailwind para preencher o espaço disponível e se assemelhe ao estilo limpo do Chatwoot. Use as cores primárias definidas.
+4.  **(Para Interação):** Se você implementar a funcionalidade de arrastar e soltar ou botões na `NegotiationList` para mudar o estágio/status, chame a função `mutate` retornada pelo hook `useUpdateNegotiation` passando o `id` e o novo valor do campo.
+Use code with caution.
+Prompt
+Etapa 7: Embeddability (Notas)
+Gere o código frontend normalmente. Lembre-se que para o embedding funcionar corretamente no Chatwoot, a configuração do servidor que hospeda este frontend NÃO deve enviar headers como `X-Frame-Options: DENY` ou `Content-Security-Policy: frame-ancestors 'none'`. Ela deve permitir ser embarcada pelo domínio do Chatwoot. (Isso é configurado no Nginx, Caddy, Vercel, etc., não diretamente no código React).
