@@ -23,3 +23,13 @@ export function formatPercent(value: number): string {
     maximumFractionDigits: 2,
   }).format(value);
 }
+
+// Função utilitária para obter o nome do cliente considerando ambas as nomenclaturas da API
+export function getNomeCliente(deal: any): string {
+  return deal.nomeCliente || deal.Nome_cliente || '';
+}
+
+// Função utilitária para obter o valor negociado considerando ambas as nomenclaturas da API
+export function getValorNegociado(deal: any): number {
+  return deal.valorNegociado || deal.valor_negociado || 0;
+}

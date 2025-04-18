@@ -53,8 +53,11 @@ export interface DashboardData {
 
 export interface Negociacao {
   id: number;
-  nomeCliente: string;
-  valorNegociado: number;
+  // Campos podem vir com nomenclaturas diferentes da API
+  nomeCliente?: string;
+  Nome_cliente?: string;
+  valorNegociado?: number;
+  valor_negociado?: number;
   estagio: string;
   status: string;
   vendedor: string;

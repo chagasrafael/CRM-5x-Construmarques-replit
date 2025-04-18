@@ -12,7 +12,7 @@ import { useUpdateNegociacao } from "@/hooks/use-update-negociacao";
 
 export default function Kanban() {
   const [openDealDialog, setOpenDealDialog] = useState(false);
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | Negociacao | null>(null);
   
   // Utilizando a API n8n para buscar negociações
   const { data: deals, isLoading } = useQuery<Negociacao[] | Deal[]>({

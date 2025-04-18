@@ -1,7 +1,7 @@
 import { useDrag } from "react-dnd";
 import { DollarSign, User } from "lucide-react";
 import StatusBadge from "@/components/ui/status-badge";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getNomeCliente, getValorNegociado } from "@/lib/utils";
 import { type Deal } from "@shared/schema";
 import { Negociacao } from "@/lib/n8nApiClient";
 
@@ -11,6 +11,9 @@ interface DealCardProps {
 }
 
 export default function DealCard({ deal, onClick }: DealCardProps) {
+  // Adicionar console.log para depuração - será removido após identificar o problema
+  console.log("Dados do card:", deal);
+  
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "DEAL",
     item: { id: deal.id },
@@ -30,13 +33,17 @@ export default function DealCard({ deal, onClick }: DealCardProps) {
       onClick={() => onClick(deal)}
     >
       <div className="flex items-start justify-between mb-2">
-        <h4 className="font-medium text-neutral-800 text-sm">{deal.nomeCliente}</h4>
+        <h4 className="font-medium text-neutral-800 text-sm">
+          {getNomeCliente(deal)}
+        </h4>
         <StatusBadge status={deal.status} />
       </div>
       
       <div className="flex items-center text-sm text-neutral-600 mb-2">
         <DollarSign className="h-4 w-4 mr-1.5 text-neutral-400" />
-        <span className="font-medium">{formatCurrency(deal.valorNegociado)}</span>
+        <span className="font-medium">
+          {formatCurrency(getValorNegociado(deal))}
+        </span>
       </div>
       
       <div className="flex items-center text-sm text-neutral-500">
