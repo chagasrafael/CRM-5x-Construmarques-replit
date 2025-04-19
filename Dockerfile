@@ -9,7 +9,7 @@ RUN npm ci
 # Copiar código-fonte
 COPY . .
 
-# Compilar a aplicação
+# Compilar a aplicação (frontend e backend)
 RUN npm run build
 
 # Imagem de produção
@@ -21,9 +21,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --production
 
-# Copiar arquivos compilados e server
+# Copiar apenas arquivos compilados
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/server ./server
+# Copiar arquivos de configuração essenciais
 COPY --from=builder /app/shared ./shared
 
 # Variáveis de ambiente
@@ -33,5 +33,5 @@ ENV PORT=5000
 # Expor porta
 EXPOSE 5000
 
-# Iniciar aplicação
-CMD ["node", "server/index.js"]
+# Iniciar aplicação usando o comando de produção
+CMD ["node", "dist/index.js"]
