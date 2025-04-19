@@ -17,9 +17,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copiar dependências de produção
+# Copiar dependências (incluindo devDependencies)
 COPY package*.json ./
-RUN npm ci --production
+# Usar npm ci sem a flag --production
+RUN npm ci
 
 # Copiar apenas os arquivos compilados
 COPY --from=builder /app/dist ./dist
