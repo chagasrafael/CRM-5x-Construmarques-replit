@@ -21,10 +21,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --production
 
-# Copiar apenas arquivos compilados
+# Copiar apenas os arquivos compilados
 COPY --from=builder /app/dist ./dist
-# Copiar arquivos de configuração essenciais
-COPY --from=builder /app/shared ./shared
 
 # Variáveis de ambiente
 ENV NODE_ENV=production

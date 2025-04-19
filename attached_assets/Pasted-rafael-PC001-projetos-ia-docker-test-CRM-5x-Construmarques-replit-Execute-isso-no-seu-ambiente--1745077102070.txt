@@ -1,0 +1,49 @@
+rafael@PC001:~/projetos_ia/docker-test/CRM-5x-Construmarques-replit$ # Execute isso no seu ambiente local (não no Docker)
+npm ci
+npm run build
+ls -la dist/
+npm WARN deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm WARN deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 495 packages, and audited 496 packages in 14s
+
+64 packages are looking for funding
+  run `npm fund` for details
+
+7 moderate severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.14 building for production...
+transforming (3) src/main.tsxBrowserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 3570 modules transformed.
+../dist/public/index.html                     1.85 kB │ gzip:   0.75 kB
+../dist/public/assets/index-CwC5Swb-.css     64.13 kB │ gzip:  11.08 kB
+../dist/public/assets/index-CJhutNJr.js   1,002.76 kB │ gzip: 291.84 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 11.59s
+
+  dist/index.js  12.6kb
+
+⚡ Done in 3ms
+total 28
+drwxr-xr-x 3 rafael rafael  4096 Apr 19 12:37 .
+drwxr-xr-x 9 rafael rafael  4096 Apr 19 12:37 ..
+-rw-r--r-- 1 rafael rafael 12935 Apr 19 12:37 index.js
+drwxr-xr-x 3 rafael rafael  4096 Apr 19 12:37 public
+rafael@PC001:~/projetos_ia/docker-test/CRM-5x-Construmarques-replit$
