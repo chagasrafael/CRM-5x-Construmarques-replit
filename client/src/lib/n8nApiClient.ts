@@ -66,6 +66,8 @@ export interface Negociacao {
   dataCriacao?: string | Date;
   updatedAt?: string | Date;
   dataModificacao?: string | Date;
+  // Link para a conversa no sistema de chat
+  link_conversa?: string;
 }
 
 /**

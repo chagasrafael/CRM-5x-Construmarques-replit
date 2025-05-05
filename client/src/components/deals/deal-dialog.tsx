@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { updateNegociacao, Negociacao } from "@/lib/n8nApiClient";
 import { useUpdateNegociacao } from "@/hooks/use-update-negociacao";
 import { getNomeCliente, getValorNegociado } from "@/lib/utils";
+import { ExternalLink } from "lucide-react";
 
 import {
   Dialog,
@@ -203,6 +204,24 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
             {isEditing ? "Editar Negociação" : "Nova Negociação"}
           </DialogTitle>
         </DialogHeader>
+        
+        {deal?.link_conversa && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+            <div className="flex items-center text-sm text-blue-800 font-medium mb-1">
+              <ExternalLink className="h-4 w-4 mr-2 text-blue-600" />
+              Histórico de conversas
+            </div>
+            <a 
+              href={deal.link_conversa} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"
+            >
+              Acessar conversa com o cliente
+              <ExternalLink className="h-3 w-3 ml-1" />
+            </a>
+          </div>
+        )}
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
