@@ -150,7 +150,6 @@ export default function ViewTabs({
           <List className="h-4 w-4 mr-1.5" />
           Lista
         </Button>
-        {/* Dashboard temporariamente oculto
         <Button
           variant={activeView === "dashboard" ? "default" : "ghost"}
           className={
@@ -158,12 +157,14 @@ export default function ViewTabs({
               ? "bg-primary text-white"
               : "text-neutral-700 hover:bg-neutral-100"
           }
-          onClick={() => onViewChange("dashboard")}
+          onClick={() => {
+            // Abrir o dashboard externo do Metabase em uma nova aba
+            window.open("https://metabase.5x.flowmax.digital/public/dashboard/537ff47e-53f5-4cc6-9b5f-272ff9cf812a?data=&vendedor=", "_blank");
+          }}
         >
           <BarChart2 className="h-4 w-4 mr-1.5" />
           Dashboard
         </Button>
-        */}
       </div>
       
       <div className="flex items-center space-x-3">
