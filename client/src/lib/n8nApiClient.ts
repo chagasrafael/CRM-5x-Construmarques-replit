@@ -80,16 +80,28 @@ export interface Negociacao {
 export async function fetchNegociacoes() {
   try {
     // Tenta obter dados da API n8n
-    return await n8nApiRequest<Negociacao[]>('/negociacoes');
+    console.log("Tentando obter dados da API n8n:", `${API_BASE_URL}/negociacoes`);
+    const data = await n8nApiRequest<Negociacao[]>('/negociacoes');
+    console.log("Dados recebidos da API n8n:", data);
+    
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.warn("API n8n retornou array vazio ou dados inválidos, tentando API local");
+      throw new Error("Dados vazios ou inválidos da API n8n");
+    }
+    
+    return data;
   } catch (error) {
     console.warn("Erro ao buscar dados da API n8n, usando fallback local:", error);
     
     // Em caso de falha, faz fallback para API local
+    console.log("Tentando API local...");
     const response = await fetch('/api/deals');
     if (!response.ok) {
       throw new Error(`Erro na API local: ${response.status}`);
     }
-    return response.json();
+    const localData = await response.json();
+    console.log("Dados recebidos da API local:", localData);
+    return localData;
   }
 }
 

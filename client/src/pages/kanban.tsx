@@ -20,7 +20,7 @@ type KanbanProps = {
 };
 
 export default function Kanban({ 
-  statusFilter = DealStatus.EM_NEGOCIACAO,
+  statusFilter = "",  // Remover filtro padrão para mostrar todos os status
   groupBy = "estagio",
   dateRange = { from: undefined, to: undefined }
 }: KanbanProps) {
@@ -176,24 +176,39 @@ export default function Kanban({
   // Dados estão carregados e são um array
   const dealsList = deals as (Deal | Negociacao)[];
   
+  console.log("Dados disponíveis no Kanban:", dealsList);
+  
   // Aplica múltiplos filtros aos dados
   const filteredDeals = dealsList.filter(deal => {
-    // Filtro de status
-    if (statusFilter && deal.status !== statusFilter) {
+    // Log para debugging de cada item
+    console.log("Analisando item:", deal);
+    
+    // Verificação básica se o item tem os campos necessários
+    if (!deal || typeof deal !== 'object' || !('status' in deal) || !('estagio' in deal)) {
+      console.warn("Item inválido encontrado nos dados:", deal);
+      return false;
+    }
+    
+    // Filtro de status (apenas se um status específico foi selecionado)
+    if (statusFilter && statusFilter.length > 0 && deal.status !== statusFilter) {
+      console.log(`Item filtrado por status: ${deal.status} != ${statusFilter}`);
       return false;
     }
     
     // Filtro de data - verifica a data de criação
     if (dateRange.from || dateRange.to) {
       const dataCriacao = getDataCriacao(deal);
+      console.log("Data de criação do item:", dataCriacao);
       
       // Pula este negócio se não tem data de criação
       if (!dataCriacao) {
+        console.log("Item sem data de criação");
         return false;
       }
       
       // Verifica se está dentro do período de início
       if (dateRange.from && dataCriacao < dateRange.from) {
+        console.log(`Item anterior ao período: ${dataCriacao} < ${dateRange.from}`);
         return false;
       }
       
@@ -204,13 +219,17 @@ export default function Kanban({
         finalDay.setDate(finalDay.getDate() + 1);
         
         if (dataCriacao > finalDay) {
+          console.log(`Item posterior ao período: ${dataCriacao} > ${finalDay}`);
           return false;
         }
       }
     }
     
+    console.log("Item incluído nos filtrados");
     return true;
   });
+  
+  console.log("Quantidade de itens após filtros:", filteredDeals.length);
 
   // Calculate stats for each category based on groupby
   const columnStats = groupingCategories.reduce<Record<string, { count: number, value: number }>>(
