@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { DealStage, DealStatus, insertDealSchema } from "@shared/schema";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createDeal, updateDeal } from "@/lib/api";
@@ -11,6 +11,7 @@ import { updateNegociacao, Negociacao } from "@/lib/n8nApiClient";
 import { useUpdateNegociacao } from "@/hooks/use-update-negociacao";
 import { getNomeCliente, getValorNegociado } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
+import { NumericFormat } from "react-number-format";
 
 import {
   Dialog,
@@ -231,18 +232,27 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
                     <FormItem>
                       <FormLabel>Valor Negociado</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <div className="absolute left-0 top-0 flex items-center h-10 pl-3 text-gray-500">
-                            R$
-                          </div>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            className="pl-8"
-                            placeholder="0,00"
-                            {...field}
-                          />
-                        </div>
+                        <Controller
+                          name="valorNegociado"
+                          control={form.control}
+                          render={({ field: { onChange, value, name, ref } }) => (
+                            <NumericFormat
+                              getInputRef={ref}
+                              value={value}
+                              thousandSeparator="."
+                              decimalSeparator=","
+                              prefix="R$ "
+                              decimalScale={2}
+                              fixedDecimalScale
+                              allowNegative={false}
+                              onValueChange={(values) => {
+                                onChange(values.floatValue || 0);
+                              }}
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                              placeholder="R$ 0,00"
+                            />
+                          )}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
