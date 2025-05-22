@@ -25,10 +25,10 @@ export default function ApiTest() {
 
   // Contagem de estágios e status para diagnóstico
   const getStatusStats = () => {
-    if (!apiData || !Array.isArray(apiData)) return {};
+    if (!apiData || !Array.isArray(apiData)) return { stages: {}, statuses: {} };
 
-    const stages = {};
-    const statuses = {};
+    const stages: Record<string, number> = {};
+    const statuses: Record<string, number> = {};
 
     apiData.forEach(item => {
       // Contar estágios
