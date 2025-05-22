@@ -271,10 +271,10 @@ export default function Kanban({
 
   return (
     <div className="relative">
-      {/* Botão de rolagem para a esquerda */}
+      {/* Botão de rolagem para a esquerda - fixo na tela */}
       <button 
         onClick={scrollLeft}
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 bg-primary text-white rounded-full shadow-lg p-3 hover:bg-primary/80"
+        className="fixed left-4 top-1/2 transform -translate-y-1/2 z-50 bg-primary text-white rounded-full shadow-lg p-3 hover:bg-primary/80"
         aria-label="Rolar para a esquerda"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -318,10 +318,10 @@ export default function Kanban({
         })}
       </div>
       
-      {/* Botão de rolagem para a direita */}
+      {/* Botão de rolagem para a direita - fixo na tela */}
       <button 
         onClick={scrollRight}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 bg-primary text-white rounded-full shadow-lg p-3 hover:bg-primary/80"
+        className="fixed right-4 top-1/2 transform -translate-y-1/2 z-50 bg-primary text-white rounded-full shadow-lg p-3 hover:bg-primary/80"
         aria-label="Rolar para a direita"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
