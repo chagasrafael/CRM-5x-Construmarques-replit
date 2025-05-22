@@ -61,13 +61,15 @@ export interface Negociacao {
   estagio: string;
   status: string;
   vendedor: string;
-  // Novos campos para datas
+  // Campos para datas
   createdAt?: string | Date;
   dataCriacao?: string | Date;
   updatedAt?: string | Date;
   dataModificacao?: string | Date;
-  // Link para a conversa no sistema de chat
+  dataUltimaModificacao?: string | Date;
+  // Campos adicionais da API
   link_conversa?: string;
+  resumo?: string;
 }
 
 /**

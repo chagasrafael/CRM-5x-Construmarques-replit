@@ -205,6 +205,22 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
           </DialogTitle>
         </DialogHeader>
         
+        {/* Seção para resumo da conversa */}
+        {deal?.resumo && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+            <div className="flex items-center text-sm text-gray-800 font-medium mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Resumo da conversa
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {deal.resumo}
+            </p>
+          </div>
+        )}
+        
+        {/* Seção para link da conversa */}
         {deal?.link_conversa && (
           <div className="mb-4 p-3 bg-blue-50 rounded-md border border-blue-200">
             <div className="flex items-center text-sm text-blue-800 font-medium mb-1">

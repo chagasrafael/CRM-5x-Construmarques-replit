@@ -4,20 +4,24 @@ import { z } from "zod";
 
 // Deal status enum
 export const DealStatus = {
-  EM_NEGOCIACAO: "Em Negociação",
+  EM_NEGOCIACAO: "Em negociacao",
   GANHO: "Ganho",
   PERDA: "Perda",
+  RESPOSTA_PENDENTE_CLIENTE: "Resposta Pendente do Cliente",
+  PAGAMENTO_PENDENTE: "Pagamento Pendente",
+  RESPOSTA_PENDENTE_VENDEDOR: "Resposta Pendente do Vendedor",
+  VENDIDO: "Vendido",
 } as const;
 
 export type DealStatusType = typeof DealStatus[keyof typeof DealStatus];
 
 // Deal stages enum
 export const DealStage = {
-  NOVO_LEAD: "Novo Lead",
-  FOLLOW_UP_MANUAL: "Follow Up Manual",
-  FOLLOW_UP_AUTOMATICO: "Follow Up Automático",
-  PROPOSTA_ENVIADA: "Proposta Enviada",
-  NEGOCIACAO_FECHADA: "Negociação Fechada",
+  NOVO_CONTATO: "Novo Contato",
+  FOLLOW_UP_AUTOMATICO: "Follow-Up Automático",
+  RECUPERADO_POR_IA: "Recuperado por IA",
+  PERDIDO: "Perdido",
+  VENDIDO: "Vendido",
 } as const;
 
 export type DealStageType = typeof DealStage[keyof typeof DealStage];
