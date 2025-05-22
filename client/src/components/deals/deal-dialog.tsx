@@ -231,11 +231,18 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
                     <FormItem>
                       <FormLabel>Valor Negociado</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <div className="absolute left-0 top-0 flex items-center h-10 pl-3 text-gray-500">
+                            R$
+                          </div>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            className="pl-8"
+                            placeholder="0,00"
+                            {...field}
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
