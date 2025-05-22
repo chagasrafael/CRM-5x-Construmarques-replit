@@ -1,110 +1,36 @@
-import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
-import StatCard from "@/components/dashboard/stat-card";
-import BarChart from "@/components/dashboard/bar-chart";
-import HorizontalBarChart from "@/components/dashboard/horizontal-bar-chart";
-import { DollarSign, Briefcase, CheckCircle, Clock } from "lucide-react";
-import { formatCurrency, formatPercent, getValorNegociado, getNomeCliente } from "@/lib/utils";
-import { DealStage } from "@shared/schema";
-import { fetchDashboardData, DashboardData } from "@/lib/n8nApiClient";
+import { useState, useEffect } from "react";
 
 export default function Dashboard() {
-  // Usando queryKey 'dashboardData' para manter compatibilidade com o hook useUpdateNegociacao
-  const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
-    queryKey: ['dashboardData'],
-    queryFn: fetchDashboardData,
-    // Fallback para API local se a API do n8n falhar
-    retry: 1
-  });
-
-  if (isLoading || !dashboardData) {
-    return (
-      <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-40 w-full" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-80 w-full" />
-          <Skeleton className="h-80 w-full" />
-        </div>
-      </div>
-    );
-  }
-
-  // Se chegou aqui, dashboardData está definido
-  const {
-    valorTotalEmAndamento,
-    numeroNegociosAbertos,
-    taxaDeGanho,
-    negociosPorEstagio,
-    valorPorVendedor
-  } = dashboardData;
-
-  // Prepare data for charts
-  const stageChartData = Object.entries(negociosPorEstagio).map(([stage, count]) => ({
-    name: stage,
-    value: count,
-  }));
-
-  const sellerChartData = Object.entries(valorPorVendedor)
-    .sort((a, b) => b[1] - a[1])
-    .map(([seller, value]) => ({
-      name: seller,
-      value,
-    }));
+  const [loading, setLoading] = useState(true);
+  const metabaseUrl = "https://metabase.5x.flowmax.digital/public/dashboard/537ff47e-53f5-4cc6-9b5f-272ff9cf812a?data=&vendedor=";
+  
+  useEffect(() => {
+    // Adicionamos um pequeno atraso para mostrar o loading e dar tempo para o iframe carregar
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Total em Andamento"
-          value={formatCurrency(valorTotalEmAndamento)}
-          icon={<DollarSign />}
-          trend={12.5}
-          trendLabel="vs mês anterior"
-        />
-        <StatCard
-          title="Negócios Abertos"
-          value={numeroNegociosAbertos.toString()}
-          icon={<Briefcase />}
-          trend={-5.2}
-          trendLabel="vs mês anterior"
-        />
-        <StatCard
-          title="Taxa de Ganho"
-          value={formatPercent(taxaDeGanho)}
-          icon={<CheckCircle />}
-          trend={3.1}
-          trendLabel="vs mês anterior"
-        />
-        <StatCard
-          title="Tempo Médio de Ciclo"
-          value="18 dias"
-          icon={<Clock />}
-          trend={2.3}
-          trendLabel="vs mês anterior"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6 border border-neutral-200">
-          <h3 className="font-medium text-neutral-800 mb-4">Negócios por Estágio</h3>
-          <div className="h-64">
-            <BarChart data={stageChartData} />
+    <div className="h-full">
+      {loading && (
+        <div className="flex items-center justify-center h-[700px]">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-neutral-600">Carregando dashboard...</p>
           </div>
         </div>
-
-        <div className="bg-white rounded-lg shadow p-6 border border-neutral-200">
-          <h3 className="font-medium text-neutral-800 mb-4">Valor por Vendedor</h3>
-          <div className="h-64">
-            <HorizontalBarChart 
-              data={sellerChartData}
-              formatValue={formatCurrency}
-            />
-          </div>
-        </div>
+      )}
+      
+      <div className={`${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}>
+        <iframe 
+          src={metabaseUrl}
+          title="Dashboard do Metabase"
+          className="w-full h-[800px] border-0 rounded-lg shadow-md"
+          allow="fullscreen"
+        />
       </div>
     </div>
   );
