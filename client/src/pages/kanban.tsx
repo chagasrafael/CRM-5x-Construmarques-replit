@@ -27,6 +27,9 @@ export default function Kanban({
   const [openDealDialog, setOpenDealDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | Negociacao | null>(null);
   
+  // Referência para o container de rolagem (movida para cá para garantir a consistência dos hooks)
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
   // Utilizando a API n8n para buscar negociações
   const { data: deals, isLoading } = useQuery<Negociacao[] | Deal[]>({
     queryKey: ['negociacoes'],
@@ -252,9 +255,6 @@ export default function Kanban({
     {}
   );
 
-  // Referência para o container de rolagem
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
   // Função para rolar para a esquerda
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
