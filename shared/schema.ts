@@ -4,7 +4,7 @@ import { z } from "zod";
 
 // Deal status enum
 export const DealStatus = {
-  EM_NEGOCIACAO: "Em negociacao",
+  EM_NEGOCIACAO: "Em Negociacao",
   GANHO: "Ganho",
   PERDA: "Perda",
   RESPOSTA_PENDENTE_CLIENTE: "Resposta Pendente do Cliente",
