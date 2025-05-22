@@ -150,6 +150,7 @@ export default function ViewTabs({
           <List className="h-4 w-4 mr-1.5" />
           Lista
         </Button>
+        {/* Dashboard temporariamente oculto
         <Button
           variant={activeView === "dashboard" ? "default" : "ghost"}
           className={
@@ -162,6 +163,7 @@ export default function ViewTabs({
           <BarChart2 className="h-4 w-4 mr-1.5" />
           Dashboard
         </Button>
+        */}
       </div>
       
       <div className="flex items-center space-x-3">
