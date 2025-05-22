@@ -59,7 +59,7 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
     defaultValues: {
       nomeCliente: getNomeCliente(deal || {}) || "",
       valorNegociado: getValorNegociado(deal || {}) || 0,
-      estagio: deal?.estagio || DealStage.NOVO_LEAD,
+      estagio: deal?.estagio || DealStage.NOVO_CONTATO,
       status: deal?.status || DealStatus.EM_NEGOCIACAO,
       vendedor: deal?.vendedor || "",
     },

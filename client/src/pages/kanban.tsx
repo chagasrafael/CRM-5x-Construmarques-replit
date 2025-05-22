@@ -121,11 +121,11 @@ export default function Kanban({
   
   // Categorias padrão para estágios
   const defaultStages = [
-    DealStage.NOVO_LEAD,
-    DealStage.FOLLOW_UP_MANUAL,
+    DealStage.NOVO_CONTATO,
     DealStage.FOLLOW_UP_AUTOMATICO,
-    DealStage.PROPOSTA_ENVIADA,
-    DealStage.NEGOCIACAO_FECHADA
+    DealStage.RECUPERADO_POR_IA,
+    DealStage.PERDIDO,
+    DealStage.VENDIDO
   ];
   
   // Categorias para agrupamento dependendo do tipo selecionado
@@ -141,7 +141,14 @@ export default function Kanban({
     } 
     else if (groupBy === "status") {
       // Usar os status constantes
-      return [DealStatus.EM_NEGOCIACAO, DealStatus.GANHO, DealStatus.PERDA];
+      return [
+        DealStatus.EM_NEGOCIACAO, 
+        DealStatus.VENDIDO,
+        DealStatus.PERDA,
+        DealStatus.RESPOSTA_PENDENTE_CLIENTE,
+        DealStatus.PAGAMENTO_PENDENTE,
+        DealStatus.RESPOSTA_PENDENTE_VENDEDOR
+      ];
     }
     else {
       // Padrão: agrupar por estágio
