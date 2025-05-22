@@ -162,17 +162,6 @@ export default function ViewTabs({
           <BarChart2 className="h-4 w-4 mr-1.5" />
           Dashboard
         </Button>
-        <Button
-          variant="ghost"
-          className="text-neutral-700 hover:bg-neutral-100"
-          onClick={() => {
-            // Abrir o dashboard externo do Metabase em uma nova aba
-            window.open("https://metabase.5x.flowmax.digital/public/dashboard/537ff47e-53f5-4cc6-9b5f-272ff9cf812a?data=&vendedor=", "_blank");
-          }}
-        >
-          <BarChart2 className="h-4 w-4 mr-1.5" />
-          Metabase
-        </Button>
       </div>
       
       <div className="flex items-center space-x-3">
