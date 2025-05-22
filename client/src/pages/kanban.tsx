@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import KanbanColumn from "@/components/deals/kanban-column";
 import { DealStage, DealStatus, type Deal } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -252,37 +252,82 @@ export default function Kanban({
     {}
   );
 
+  // Referência para o container de rolagem
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Função para rolar para a esquerda
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
+  
+  // Função para rolar para a direita
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="flex space-x-4 overflow-x-auto pb-6 scrollbar-thin">
-      {groupingCategories.map((category) => {
-        // Filtrar deals com base no critério de agrupamento
-        let categoryDeals;
-        
-        if (groupBy === "vendedor") {
-          categoryDeals = filteredDeals.filter((deal) => deal.vendedor === category);
-        } 
-        else if (groupBy === "status") {
-          categoryDeals = filteredDeals.filter((deal) => deal.status === category);
-        }
-        else {
-          // Padrão: agrupar por estágio
-          categoryDeals = filteredDeals.filter((deal) => deal.estagio === category);
-        }
-        
-        const stats = columnStats[category] || { count: 0, value: 0 };
-        
-        return (
-          <KanbanColumn
-            key={category}
-            title={category}
-            deals={categoryDeals}
-            count={stats.count}
-            value={formatCurrency(stats.value)}
-            onDragEnd={handleDragEnd}
-            onDealClick={handleOpenDeal}
-          />
-        );
-      })}
+    <div className="relative">
+      {/* Botão de rolagem para a esquerda */}
+      <button 
+        onClick={scrollLeft}
+        className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg p-2 hover:bg-gray-100"
+        style={{ marginLeft: "-10px" }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      
+      {/* Container de rolagem com as colunas */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex space-x-4 overflow-x-auto pb-6 scroll-smooth hide-scrollbar"
+      >
+        {groupingCategories.map((category) => {
+          // Filtrar deals com base no critério de agrupamento
+          let categoryDeals;
+          
+          if (groupBy === "vendedor") {
+            categoryDeals = filteredDeals.filter((deal) => deal.vendedor === category);
+          } 
+          else if (groupBy === "status") {
+            categoryDeals = filteredDeals.filter((deal) => deal.status === category);
+          }
+          else {
+            // Padrão: agrupar por estágio
+            categoryDeals = filteredDeals.filter((deal) => deal.estagio === category);
+          }
+          
+          const stats = columnStats[category] || { count: 0, value: 0 };
+          
+          return (
+            <KanbanColumn
+              key={category}
+              title={category}
+              deals={categoryDeals}
+              count={stats.count}
+              value={formatCurrency(stats.value)}
+              onDragEnd={handleDragEnd}
+              onDealClick={handleOpenDeal}
+            />
+          );
+        })}
+      </div>
+      
+      {/* Botão de rolagem para a direita */}
+      <button 
+        onClick={scrollRight}
+        className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg p-2 hover:bg-gray-100"
+        style={{ marginRight: "-10px" }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
 
       {selectedDeal && (
         <DealDialog
