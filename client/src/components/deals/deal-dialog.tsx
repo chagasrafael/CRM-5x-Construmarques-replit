@@ -198,170 +198,182 @@ export default function DealDialog({ open, onOpenChange, deal }: DealDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Editar Negociação" : "Nova Negociação"}
           </DialogTitle>
         </DialogHeader>
         
-        {/* Seção para resumo da conversa */}
-        {deal?.resumo && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-md border border-gray-200">
-            <div className="flex items-center text-sm text-gray-800 font-medium mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-              Resumo da conversa
-            </div>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {deal.resumo}
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Coluna da esquerda: Informações do cliente e detalhes da negociação */}
+          <div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="nomeCliente"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome do Cliente</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="valorNegociado"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Valor Negociado</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="estagio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estágio</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o estágio" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(DealStage).map((stage) => (
+                            <SelectItem key={stage} value={stage}>
+                              {stage}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(DealStatus).map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="vendedor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vendedor</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
           </div>
-        )}
-        
-        {/* Seção para link da conversa */}
-        {deal?.link_conversa && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md border border-blue-200">
-            <div className="flex items-center text-sm text-blue-800 font-medium mb-1">
-              <ExternalLink className="h-4 w-4 mr-2 text-blue-600" />
-              Histórico de conversas
-            </div>
-            <a 
-              href={deal.link_conversa} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"
-            >
-              Acessar conversa com o cliente
-              <ExternalLink className="h-3 w-3 ml-1" />
-            </a>
+          
+          {/* Coluna da direita: Resumo da conversa e link para o histórico */}
+          <div className="space-y-4">
+            {/* Seção para link da conversa */}
+            {deal?.link_conversa && (
+              <div className="p-4 bg-blue-50 rounded-md border border-blue-200">
+                <div className="flex items-center text-sm text-blue-800 font-medium mb-2">
+                  <ExternalLink className="h-4 w-4 mr-2 text-blue-600" />
+                  Histórico de conversas
+                </div>
+                <a 
+                  href={deal.link_conversa} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"
+                >
+                  Acessar conversa com o cliente
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </a>
+              </div>
+            )}
+            
+            {/* Seção para resumo da conversa */}
+            {deal?.resumo && (
+              <div className="p-4 bg-gray-50 rounded-md border border-gray-200 h-[400px] overflow-y-auto">
+                <div className="flex items-center text-sm text-gray-800 font-medium mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  Resumo da conversa
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {deal.resumo}
+                </p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
         
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="nomeCliente"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome do Cliente</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="valorNegociado"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor Negociado</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="estagio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estágio</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o estágio" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.values(DealStage).map((stage) => (
-                        <SelectItem key={stage} value={stage}>
-                          {stage}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.values(DealStatus).map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="vendedor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vendedor</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Salvando..."
-                  : isEditing
-                  ? "Salvar Alterações"
-                  : "Criar Negociação"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <DialogFooter className="mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            type="button" 
+            onClick={form.handleSubmit(onSubmit)} 
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? "Salvando..."
+              : isEditing
+              ? "Salvar Alterações"
+              : "Criar Negociação"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
