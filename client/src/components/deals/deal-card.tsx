@@ -23,11 +23,11 @@ export default function DealCard({ deal, onClick }: DealCardProps) {
   const getCardColorClass = () => {
     const valor = getValorNegociado(deal);
     
-    if (valor >= 100000) {
+    if (valor > 15000) {
       return "border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-white";
-    } else if (valor >= 50000) {
+    } else if (valor > 10000) {
       return "border-l-4 border-l-emerald-500 bg-gradient-to-r from-emerald-50 to-white";
-    } else if (valor >= 10000) {
+    } else if (valor > 5000) {
       return "border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-50 to-white";
     } else {
       return "border-l-4 border-l-slate-400 bg-gradient-to-r from-slate-50 to-white";
