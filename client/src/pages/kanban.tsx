@@ -140,14 +140,11 @@ export default function Kanban({
       return vendedores.length > 0 ? vendedores : ["Sem vendedor"];
     } 
     else if (groupBy === "status") {
-      // Usar os status constantes
+      // Usar os status constantes conforme atualizados na API
       return [
         DealStatus.EM_NEGOCIACAO, 
-        DealStatus.VENDIDO,
-        DealStatus.PERDA,
-        DealStatus.RESPOSTA_PENDENTE_CLIENTE,
-        DealStatus.PAGAMENTO_PENDENTE,
-        DealStatus.RESPOSTA_PENDENTE_VENDEDOR
+        DealStatus.GANHO,
+        DealStatus.PERDA
       ];
     }
     else {
